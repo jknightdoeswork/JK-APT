@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ParticleToy</string>
+    <string name="mm_button_startGame">Play</string>
+    <string name="mm_button_options">Options</string>
+
+</resources>
