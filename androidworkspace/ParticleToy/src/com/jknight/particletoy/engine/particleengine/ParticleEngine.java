@@ -7,7 +7,8 @@ import android.graphics.Canvas;
 
 public class ParticleEngine {
 
-	public static ParticleFactory pFactory = new ParticleFactory(100);
+	public static int MAX_PARTICLES = 1000;
+	public static ParticleFactory pFactory = new ParticleFactory(1000);
 	
 	public LinkedList<Particle> particles;
 

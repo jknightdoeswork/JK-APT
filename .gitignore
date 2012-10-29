@@ -1,3 +1,6 @@
 .metadata
 *.class
 
+androidworkspace/ParticleToy/bin/resources.ap_
+androidworkspace/ParticleToy/bin/ParticleToy.apk
+androidworkspace/ParticleToy/bin/classes.dex

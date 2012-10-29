@@ -8,8 +8,11 @@ import com.jknight.particletoy.R;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 
 /**
@@ -20,18 +23,17 @@ import android.graphics.drawable.BitmapDrawable;
  * Lives until the end of it's life and then dies.
  */
 public class Particle {
-	
-	public float world_x; 				// In World Coordinates, bottom left is (0,0)
-	public float world_y;
-	
+
 	public float screen_x;				// In Camera Coordinates, bottom left is (0,0)
 	public float screen_y;
+	
+	public Rect destination; 
 	
 	public int width;					// Dimensions
 	public int height;
 	
-	public float x;						// Position
-	public float y;
+	public float world_x; 				// In World Coordinates, bottom left is (0,0)
+	public float world_y;
 
 	public float dx;					// Velocity
 	public float dy;
@@ -42,7 +44,7 @@ public class Particle {
 	public float age;					//TODO In microseconds?
 	public float max_age;
 	
-	BitmapDrawable drawable;
+	Bitmap drawable;
 	
 	public Particle() {
 		Init();
@@ -55,8 +57,8 @@ public class Particle {
 		this.dy = 0.0f;
 		this.ax = 0.0f;
 		this.ay = 0.0f;
-		this.width = drawable.getIntrinsicWidth();
-		this.height = drawable.getIntrinsicHeight();
+		this.width = 0;
+		this.height = 0;
 	}
 	
 	public void Init(Dictionary<String, Object> kwargs, Context context) {
@@ -67,12 +69,12 @@ public class Particle {
 		this.dy = 0.0f;
 		this.ax = 0.0f;
 		this.ay = 0.0f;
-		this.width = drawable.getIntrinsicWidth();
-		this.height = drawable.getIntrinsicHeight();
 		Resources res = context.getResources();
-		this.drawable = (BitmapDrawable) res.getDrawable(R.drawable.stary_aura);
+		this.drawable = BitmapFactory.decodeResource(res, R.drawable.stary_aura);
+		this.width = drawable.getWidth();
+		this.height = drawable.getHeight();
 		
-		// I miss python style keyword-arguments
+		// I miss python styled keyword-arguments
 		Enumeration<String> keys = kwargs.keys();
 		Class<? extends Particle> particle_class = getClass();
 		while (keys.hasMoreElements()) {
@@ -98,8 +100,11 @@ public class Particle {
 	 */
 	public boolean Update(long elapsed, float camera_x, float camera_y) {
 		// TODO FILL THIS IN
-		screen_x = world_x - camera_x;
-		screen_y = world_y - camera_y;
+		int left = (int)(world_x - camera_x);
+		int bottom = (int)(world_y - camera_y);
+		int right = left + width;
+		int top = bottom + height;
+		destination.set(left, top, right, bottom);
 		return true;
 	}
 	
@@ -111,7 +116,7 @@ public class Particle {
 	 * @param camera_y the x coordinate of the camera so that draw_y = world_y - camera_y
 	 */
 	public void Draw(Canvas c) {
-		drawable.draw(c);
+		c.drawBitmap(drawable, null, destination, null);
 		return;
 	}
 }
