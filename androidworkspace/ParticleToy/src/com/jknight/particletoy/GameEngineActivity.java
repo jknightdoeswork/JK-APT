@@ -11,10 +11,9 @@ public class GameEngineActivity extends AngleActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         pEngine = new ParticleEngine();
-        
+
         // Add Children
-        mGLSurfaceView.addObject(pEngine);
-        
-        setContentView(R.layout.particle_layout);
+        mGLSurfaceView.addObject(pEngine);        
+        setContentView(mGLSurfaceView);
     }
 }
