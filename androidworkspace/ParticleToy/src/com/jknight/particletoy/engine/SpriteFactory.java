@@ -3,9 +3,12 @@ package com.jknight.particletoy.engine;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 
-import com.android.angle.AngleObject;
+import android.util.Log;
+
 import com.android.angle.AngleSprite;
+import com.android.angle.AngleSpriteLayout;
 import com.android.angle.AngleSurfaceView;
 
 public class SpriteFactory<T extends AngleSprite> {
@@ -14,13 +17,15 @@ public class SpriteFactory<T extends AngleSprite> {
 	private int _size;
 	private T[] _objects;
 	private LinkedList<T> _freeList;
-	private AngleSurfaceView _surface;
+	private int _drawableId;
+	private AngleSurfaceView _surface;	
 	
 	
-	public SpriteFactory(Class<? extends AngleSprite> type, int size, AngleSurfaceView surface) throws InstantiationException, IllegalAccessException {
+	public SpriteFactory(Class<? extends AngleSprite> type, int size, int drawableId, AngleSurfaceView surface) throws InstantiationException, IllegalAccessException {
 		_type = type;
 		_size = size;
 		_freeList = new LinkedList<T>();
+		_drawableId = drawableId;
 		_surface = surface;
 		allocateObjects();
 	}
@@ -38,8 +43,9 @@ public class SpriteFactory<T extends AngleSprite> {
 		_freeList.clear();
 		_objects = (T[]) Array.newInstance(_type, _size);
 		for (int i = 0; i < _size; i++) {
-			Class<?>[] parameterTypes = {AngleSurfaceView.class};
-			Object[] parameterValues = {_surface};
+			AngleSpriteLayout layout = new AngleSpriteLayout(_surface, _drawableId);
+			Class<?>[] parameterTypes = {AngleSpriteLayout.class, SpriteFactory.class};
+			Object[] parameterValues = {layout, this};
 			try {
 				_objects[i] = (T) _type.getConstructor(parameterTypes).newInstance(parameterValues);
 			} catch (IllegalArgumentException e) {
@@ -63,8 +69,14 @@ public class SpriteFactory<T extends AngleSprite> {
 	}
 	
 	public T getFreeObject() {
-		T freeObject = _freeList.removeFirst();
-		return freeObject;
+		try {
+			T freeObject = _freeList.removeFirst();
+			return freeObject;
+		}
+		catch (NoSuchElementException e) {
+			Log.w("SpriteFactoryEmpty", _type.toString(), e);
+			return null;
+		}
 	}
 	
 	public void returnFreeObject(T toReturn) {

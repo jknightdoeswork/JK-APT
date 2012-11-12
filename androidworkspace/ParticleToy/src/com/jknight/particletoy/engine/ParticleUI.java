@@ -7,15 +7,15 @@ import com.android.angle.AngleUI;
 
 public class ParticleUI extends AngleUI {
 
-	public ParticleUI(AngleActivity activity) {
+	ParticleEngine _pEngine;
+	public ParticleUI(AngleActivity activity, ParticleEngine pEngine) {
 		super(activity);
-		// TODO Auto-generated constructor stub
+		_pEngine = pEngine;
 	}
 	
 	@Override
-	public boolean onTouchEvent(MotionEvent event) 
-	{
-		
+	public boolean onTouchEvent(MotionEvent e) {
+		_pEngine.addParticle(e.getX(), e.getY());
 		return true;
 	}
 
