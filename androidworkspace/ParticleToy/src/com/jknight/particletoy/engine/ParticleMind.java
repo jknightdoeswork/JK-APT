@@ -1,6 +1,7 @@
 package com.jknight.particletoy.engine;
 
 import android.util.FloatMath;
+import android.util.Log;
 
 /*
  * An interface to a particles mind.
@@ -9,8 +10,8 @@ import android.util.FloatMath;
  * All like minded particles share memory space.
  */
 public interface ParticleMind {
-	public static float _globalHueRate = 1.0f;
-	public static float _globalBlinkRate = 1.0f;
+	public static float _globalHueRate = 3.0f;
+	public static float _globalBlinkRate = 1.6180f * _globalHueRate;
 	public void think(Particle particle, float secondsElapsed);
 	public static Sheep sheep = new Sheep();
 	public static Blink blink = new Blink();
@@ -66,49 +67,44 @@ public interface ParticleMind {
 			float max = 1.0f;
 			float min = -1.0f;
 			float range = max - min;
-	        float regionSize = range / 6;
-	        if (current < min + regionSize)
-	        {
+	        float regionSize = range / 6.0f;
+	        if (current < min + regionSize) {
 	            particle.mRed = 1.0f;
 	            particle.mBlue = 0;
 	            float toMultiply = (current - min) / regionSize;
-	            particle.mGreen = (int)(toMultiply * 1.0f);
+	            particle.mGreen = (toMultiply * 1.0f);
 	        }
-	        else if (current < min + 2 * regionSize)
-	        {
-	            int tosubtract = (int)(((current - (min + regionSize)) / regionSize) * 1.0f);
+	        else if (current < min + 2 * regionSize) {
+	            float tosubtract = (((current - (min + regionSize)) / regionSize) * 1.0f);
 	            particle.mRed = 1.0f - tosubtract;
 	            particle.mBlue = 0;
 	            particle.mGreen = 1.0f;
 	        }
-	        else if (current < min + 3 * regionSize)
-	        {
+	        else if (current < min + 3 * regionSize) {
 	            particle.mRed = 0;
 	            float toMultiply = ((current - (min + (2 * regionSize))) / regionSize);
-	            particle.mBlue = (int)(toMultiply * 1.0f);
+	            particle.mBlue = (toMultiply * 1.0f);
 	            particle.mGreen = 1.0f;
 	        }
-	        else if (current < min + 4 * regionSize)
-	        {
+	        else if (current < min + 4 * regionSize) {
 	            particle.mRed = 0;
 	            particle.mBlue = 1.0f;
-	            int toSubtract = (int)(((current - (min + (3 * regionSize))) / regionSize) * 1.0f);
+	            float toSubtract = (((current - (min + (3 * regionSize))) / regionSize) * 1.0f);
 	            particle.mGreen = 1.0f - toSubtract;
 	        }
-	        else if (current < min + 5 * regionSize)
-	        {
+	        else if (current < min + 5 * regionSize) {
 	            float toMultiply = ((current - (min + (4 * regionSize))) / regionSize);
-	            particle.mRed = (int)(toMultiply * 1.0f);
+	            particle.mRed = (toMultiply * 1.0f);
 	            particle.mBlue = 1.0f;
 	            particle.mGreen = 0;
 	        }
-	        else
-	        {
+	        else {
 	            particle.mRed = 1.0f;
-	            int toSubtract = (int)(((current - (min + (5 * regionSize))) / regionSize) * 1.0f);
+	            float toSubtract = (((current - (min + (5 * regionSize))) / regionSize) * 1.0f);
 	            particle.mBlue = 1.0f - toSubtract;
 	            particle.mGreen = 0;
-	        }	        
+	        }
+	        //Log.i("COLOR", "R: " + particle.mRed + " G: " + particle.mBlue + " B: " + particle.mGreen);
 		}
 	}    
 }

@@ -3,5 +3,7 @@
     <string name="app_name">ParticleToy</string>
     <string name="mm_button_startGame">Play</string>
     <string name="mm_button_options">Options</string>
-
+    <string name="ab_button_options">Options</string>
+    <string name="ab_button_clear">Clear</string>
+    <string name="ab_button_toggle_blink">Toggle Blink</string>
 </resources>

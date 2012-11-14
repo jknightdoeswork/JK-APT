@@ -82,4 +82,11 @@ public class SpriteFactory<T extends AngleSprite> {
 	public void returnFreeObject(T toReturn) {
 		_freeList.addLast(toReturn);
 	}
+	public void freeAll() {
+		_freeList.clear();
+		for (T sprite : _objects) {
+			_freeList.addLast(sprite);
+		}
+		
+	}
 }

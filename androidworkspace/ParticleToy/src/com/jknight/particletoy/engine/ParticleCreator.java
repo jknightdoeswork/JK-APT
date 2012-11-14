@@ -15,7 +15,7 @@ public interface ParticleCreator {
 	public static class JitterCreator implements ParticleCreator {
 		/* Fields effecting uniqueness of a particle */
 		public static Random rand = new Random();
-		public static float hueJitter = 0.5f;
+		public static float hueJitter = 0.0f;
 		public static float blinkJitter = 0.0f;
 		
 		private static float epsilon;

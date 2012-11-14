@@ -35,4 +35,9 @@ public class ParticleEngine extends AngleObject {
 	public void removeParticle(Particle particle) {
 		particle.mDie = true; // Particle will hand itself back to the pFactory
 	}
+
+	public void clear() {
+		removeAll();
+		_pFactory.freeAll();
+	}
 }
