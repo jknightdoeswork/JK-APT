@@ -6,14 +6,12 @@
 		        android:id="@+id/tvChild"
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
-		        android:textColor="@color/Black"
 		        android:textSize="17dip"
 		        android:text="THIS IS MY OPTIONS TEXT" />
     	    <TextView
 		        android:id="@+id/tvChild"
 		        android:layout_width="fill_parent"
 		        android:layout_height="wrap_content"
-		        android:textColor="@color/Black"
 		        android:textSize="17dip"
 		        android:text="TestING @jlkjfalkdfjdl!!" />
     

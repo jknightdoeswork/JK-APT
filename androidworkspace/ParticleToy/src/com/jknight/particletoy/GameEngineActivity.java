@@ -21,9 +21,19 @@ public class GameEngineActivity extends AngleActivity {
         pUI = new ParticleUI(this, pEngine);
         setUI(pUI);
 
-        // Add Children
+        // Add Children To Surface
         mGLSurfaceView.addObject(pEngine);
-        setContentView(mGLSurfaceView);
+        
+        setContentView(R.layout.game_engine_layout);
+        
+        // Add Surface To View 
+        addContentView(mGLSurfaceView, null);
+        
+        // Add Options Menu To View
+        // Create an instance of ExampleFragment
+        OptionsFragment options_fragment = new OptionsFragment();
+        getFragmentManager().beginTransaction()
+                .add(R.layout.game_engine_layout, options_fragment).commit();
     }
     
     /* Inflates the options menu */
