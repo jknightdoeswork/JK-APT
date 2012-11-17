@@ -1,26 +1,54 @@
 package com.jknight.particletoy;
-import com.jknight.particletoy.view.GameEngineView;
-
-import android.app.Activity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
-public class GameEngineActivity extends Activity {
+import com.android.angle.AngleActivity;
+import com.jknight.particletoy.engine.ParticleEngine;
+import com.jknight.particletoy.engine.ParticleUI;
 
-	GameEngineView gameEngineView;
+public class GameEngineActivity extends AngleActivity {
 	
+	ParticleEngine pEngine;
+	ParticleUI pUI;
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.particle_layout);
-    }
+        pEngine = new ParticleEngine(this, 1000);
+        pUI = new ParticleUI(this, pEngine);
+        setUI(pUI);
 
-    public void startGame(View view) {
-    	gameEngineView = (GameEngineView) findViewById(R.id.gameengineview);
+        // Add Children
+        mGLSurfaceView.addObject(pEngine);
+        setContentView(mGLSurfaceView);
     }
-
-    public void openOptions(View view) {
+    
+    /* Inflates the options menu */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.actionbar, menu);
+		return true;
+    	
+    }
+    
+    /* Handles option clicks */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.clear:
+            	pEngine.clear();
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+    
+    /* Handles blink toggle */
+    public void toggleBlink(View view){
     	return;
     }
 }

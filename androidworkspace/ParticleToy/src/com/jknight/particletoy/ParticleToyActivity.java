@@ -1,6 +1,5 @@
 package com.jknight.particletoy;
 
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,7 +11,7 @@ public class ParticleToyActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.particle_layout);
+        setContentView(R.layout.main);
     }
 
     public void startGame(View view) {

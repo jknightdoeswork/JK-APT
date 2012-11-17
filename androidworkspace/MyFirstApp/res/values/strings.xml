@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <!-- Meta Strings -->
-    <string name="app_name">MyFirstApp</string>
-    <!-- Strings for the intro screen -->
-    <string name="hello">Hello World, MyFirstAppActivity!</string>
-	<string name="name_hint">Enter your name</string>
-</resources>
