@@ -17,9 +17,10 @@ public final class R {
         public static final int stary_aura=0x7f020003;
     }
     public static final class id {
-        public static final int clear=0x7f060001;
-        public static final int toggle_blink=0x7f060002;
-        public static final int tvChild=0x7f060000;
+        public static final int anglesurfaceview=0x7f060000;
+        public static final int clear=0x7f060002;
+        public static final int toggle_blink=0x7f060003;
+        public static final int tvChild=0x7f060001;
     }
     public static final class layout {
         public static final int game_engine_layout=0x7f030000;
