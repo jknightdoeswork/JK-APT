@@ -3,4 +3,7 @@
     <item android:id="@+id/clear"
           android:title="@string/ab_button_clear"
           android:showAsAction="ifRoom"/>
+    <item android:id="@+id/options"
+          android:title="@string/ab_button_options"
+          android:showAsAction="ifRoom"/>
 </menu>

@@ -2,7 +2,7 @@ package com.jknight.particletoy.engine;
 
 import com.android.angle.AngleObject;
 import com.android.angle.AngleSurfaceView;
-import com.jknight.particletoy.GameEngineActivity;
+import com.jknight.particletoy.ParticleToyActivity;
 import com.jknight.particletoy.R;
 
 public class ParticleEngine extends AngleObject {
@@ -10,7 +10,7 @@ public class ParticleEngine extends AngleObject {
 	AngleSurfaceView _surface;
 	SpriteFactory<Particle> _pFactory;
 	
-	public ParticleEngine(GameEngineActivity activity, int maxChildren) {
+	public ParticleEngine(ParticleToyActivity activity, int maxChildren) {
 		super(maxChildren);
 		_surface = activity.mGLSurfaceView;
 		try {
