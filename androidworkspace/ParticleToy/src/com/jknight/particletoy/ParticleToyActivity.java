@@ -59,6 +59,7 @@ public class ParticleToyActivity extends Activity {
         switch (item.getItemId()) {
             case R.id.clear:
             	pEngine.clear();
+            	return true;
             case R.id.options:
             	View options = findViewById(R.id.frag_container);
             	if (options.getVisibility() == View.VISIBLE) {
@@ -67,6 +68,7 @@ public class ParticleToyActivity extends Activity {
             	else {
             		options.setVisibility(View.GONE);
             	}
+            	return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
