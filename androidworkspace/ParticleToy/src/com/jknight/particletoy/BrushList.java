@@ -6,7 +6,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class ListFrag extends ListFragment{
+public class BrushList extends ListFragment{
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -24,7 +24,7 @@ public class ListFrag extends ListFragment{
 	@Override
 	public void onListItemClick(ListView l, View v, int position, long id) {
 		String item = (String) getListAdapter().getItem(position);
-		DetailFrag frag = (DetailFrag) getFragmentManager().findFragmentById(R.id.frag_capt);
+		BrushDetailFrag frag = (BrushDetailFrag) getFragmentManager().findFragmentById(R.id.brush_detail);
 		if (frag != null && frag.isInLayout()) {
 			frag.setText(getCapt(item));
 		}

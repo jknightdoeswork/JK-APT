@@ -4,14 +4,14 @@
    android:layout_height="fill_parent"
    android:orientation="horizontal" >
    	<fragment
-       	android:id="@+id/frag_series"
+       	android:id="@+id/brush_list"
        	android:layout_width="200dip"
        	android:layout_height="match_parent"
        	android:layout_marginTop="?android:attr/actionBarSize"
-       	class="com.jknight.particletoy.ListFrag" />
+       	class="com.jknight.particletoy.BrushList" />
    	<fragment
-       	android:id="@+id/frag_capt"
+       	android:id="@+id/brush_detail"
        	android:layout_width="match_parent"
        	android:layout_height="match_parent"
-       	class="com.jknight.particletoy.DetailFrag" />
+       	class="com.jknight.particletoy.BrushDetailFrag" />
 </LinearLayout>

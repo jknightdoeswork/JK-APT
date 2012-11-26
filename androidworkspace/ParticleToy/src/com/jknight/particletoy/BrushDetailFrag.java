@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-public class DetailFrag extends Fragment{
+public class BrushDetailFrag extends Fragment{
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

@@ -18,7 +18,7 @@ public interface ParticleCreator {
 		public static float hueJitter = 0.0f;
 		public static float blinkJitter = 0.0f;
 		
-		private static float epsilon;
+		private static float epsilon = 0.00001f;
 		
 		public void create(Particle particle) {
 			if (hueJitter > epsilon || hueJitter < -1.0f * epsilon) {

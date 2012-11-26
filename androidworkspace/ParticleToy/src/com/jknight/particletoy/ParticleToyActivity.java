@@ -14,15 +14,20 @@ import com.jknight.particletoy.engine.ParticleUI;
 public class ParticleToyActivity extends Activity {
 	
 	public AngleSurfaceView mGLSurfaceView; // The main GL View
+	public View optionsView; // The options dropdown
 	ParticleEngine pEngine;
 	ParticleUI pUI;
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);        
+        super.onCreate(savedInstanceState);
+        
         setContentView(R.layout.main);
+        
         // hide options
-        findViewById(R.id.frag_container).setVisibility(View.INVISIBLE);
+        optionsView = findViewById(R.id.frag_container);
+        optionsView.setVisibility(View.INVISIBLE);
+        
         // create surface
         try
 		{
@@ -35,9 +40,11 @@ public class ParticleToyActivity extends Activity {
 		{
 			e.printStackTrace();
 		}
+        
         // create particle engine
         pEngine = new ParticleEngine(this, 1000);
         mGLSurfaceView.addObject(pEngine);
+        
         // create ui controller
         pUI = new ParticleUI(pEngine);
         mGLSurfaceView.addObject(pUI);
@@ -61,18 +68,28 @@ public class ParticleToyActivity extends Activity {
             	pEngine.clear();
             	return true;
             case R.id.options:
-            	View options = findViewById(R.id.frag_container);
-            	if (options.getVisibility() == View.VISIBLE) {
-            		options.setVisibility(View.GONE);
+            	if (optionsView.getVisibility() == View.VISIBLE) {
+            		optionsView.setVisibility(View.GONE);
             	}
             	else {
-            		options.setVisibility(View.GONE);
+            		optionsView.setVisibility(View.VISIBLE);
             	}
             	return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
+    
+    @Override
+    public void onBackPressed() {
+        if (optionsView.getVisibility() == View.VISIBLE) {
+            optionsView.setVisibility(View.GONE);
+            return;
+        }
+        // Otherwise defer to system default behavior.
+        super.onBackPressed();
+    }
+    
     @Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
