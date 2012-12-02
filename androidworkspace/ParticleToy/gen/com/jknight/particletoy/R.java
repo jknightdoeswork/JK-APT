@@ -17,24 +17,25 @@ public final class R {
         public static final int stary_aura=0x7f020003;
     }
     public static final class id {
-        public static final int clear=0x7f060001;
-        public static final int gameengineview=0x7f060000;
-        public static final int toggle_blink=0x7f060002;
+        public static final int anglesurfaceview=0x7f060001;
+        public static final int brush_detail=0x7f060004;
+        public static final int brush_list=0x7f060003;
+        public static final int captain=0x7f060000;
+        public static final int clear=0x7f060005;
+        public static final int frag_container=0x7f060002;
+        public static final int options=0x7f060006;
     }
     public static final class layout {
-        public static final int main=0x7f030000;
-        public static final int particle_layout=0x7f030001;
+        public static final int detail_fragment=0x7f030000;
+        public static final int main=0x7f030001;
+        public static final int options_fragment=0x7f030002;
     }
     public static final class menu {
         public static final int actionbar=0x7f050000;
-        public static final int options_popup=0x7f050001;
     }
     public static final class string {
-        public static final int ab_button_clear=0x7f040004;
-        public static final int ab_button_options=0x7f040003;
-        public static final int ab_button_toggle_blink=0x7f040005;
+        public static final int ab_button_clear=0x7f040002;
+        public static final int ab_button_options=0x7f040001;
         public static final int app_name=0x7f040000;
-        public static final int mm_button_options=0x7f040002;
-        public static final int mm_button_startGame=0x7f040001;
     }
 }
