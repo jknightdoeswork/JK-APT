@@ -9,27 +9,34 @@ import android.util.Log;
  * Static setup for only 1 new call per mind.
  * All like minded particles share memory space.
  */
-public interface ParticleMind {
-	public static float _globalHueRate = 3.0f;
-	public static float _globalBlinkRate = 1.6180f * _globalHueRate;
-	public void think(Particle particle, float secondsElapsed);
-	public static Sheep sheep = new Sheep();
+public interface ParticleComponent {
+	public void step(Particle particle, float secondsElapsed);
+	public void init(Particle particle);
+	public static SimpleBrush sheep = new SimpleBrush();
 	public static Blink blink = new Blink();
 	public static Hue hue = new Hue();
-	public static ComplexMind hueBlink = new ComplexMind(new ParticleMind[] {hue, blink});
+	public static ComplexMind hueBlink = new ComplexMind(new ParticleComponent[] {hue, blink});
+	public static float _globalHueRate = 3.0f;
+	public static float _globalBlinkRate = 1.6180f * _globalHueRate;
 	
 	/*
 	 * A complex mind is made up of multiple subminds.
 	 */
-	public static class ComplexMind implements ParticleMind{
-		ParticleMind[] _thoughts;		
-		public ComplexMind(ParticleMind[] thoughts){
+	public static class ComplexMind implements ParticleComponent{
+		ParticleComponent[] _thoughts;		
+		public ComplexMind(ParticleComponent[] thoughts){
 			_thoughts = thoughts;
 		}
 		@Override
-		public void think(Particle particle, float secondsElapsed) {
-			for (ParticleMind thought : _thoughts) {
-				thought.think(particle, secondsElapsed);
+		public void step(Particle particle, float secondsElapsed) {
+			for (ParticleComponent thought : _thoughts) {
+				thought.step(particle, secondsElapsed);
+			}
+		}
+		@Override
+		public void init(Particle particle) {
+			for (ParticleComponent thought : _thoughts) {
+				thought.init(particle);
 			}
 		}
 	}
@@ -38,10 +45,16 @@ public interface ParticleMind {
 	 * Sheep
 	 * The default mind for all particles.
 	 */
-	public static class Sheep implements ParticleMind {
+	public static class SimpleBrush implements ParticleComponent {
 		@Override
-		public void think(Particle particle, float secondsElapsed) {
+		public void step(Particle particle, float secondsElapsed) {
 			return;
+		}
+
+		@Override
+		public void init(Particle particle) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	
@@ -49,10 +62,16 @@ public interface ParticleMind {
 	 * Blink
 	 * Alpha fades in and out with age.
 	 */
-	public static class Blink implements ParticleMind {
+	public static class Blink implements ParticleComponent {
 		@Override
-		public void think(Particle particle, float secondsElapsed) {
+		public void step(Particle particle, float secondsElapsed) {
 			particle.mAlpha = (float) Math.abs(FloatMath.cos(particle._age * particle.blinkRate * _globalBlinkRate));
+		}
+
+		@Override
+		public void init(Particle particle) {
+			particle.mAlpha = 1.0f;
+			
 		}
 	}
 	
@@ -60,9 +79,9 @@ public interface ParticleMind {
 	 * Hue
 	 * Hue blink with age.
 	 */
-	public static class Hue implements ParticleMind {
+	public static class Hue implements ParticleComponent {
 		@Override
-		public void think(Particle particle, float secondsElapsed) {
+		public void step(Particle particle, float secondsElapsed) {
 			float current = (float) FloatMath.cos(particle._age * particle.hueRate * _globalHueRate);
 			float max = 1.0f;
 			float min = -1.0f;
@@ -105,6 +124,13 @@ public interface ParticleMind {
 	            particle.mGreen = 0;
 	        }
 	        //Log.i("COLOR", "R: " + particle.mRed + " G: " + particle.mBlue + " B: " + particle.mGreen);
+		}
+
+		@Override
+		public void init(Particle particle) {
+			particle.mBlue = 1.0f;
+			particle.mRed = 1.0f;
+			particle.mGreen = 1.0f;			
 		}
 	}    
 }

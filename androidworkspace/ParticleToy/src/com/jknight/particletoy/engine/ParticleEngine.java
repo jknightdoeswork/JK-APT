@@ -27,7 +27,7 @@ public class ParticleEngine extends AngleObject {
 	public void addParticle(float x, float y) {
 		Particle particle = _pFactory.getFreeObject();
 		if (null != particle) {
-			particle.init(x, y, ParticleCreator.jitterCreator, ParticleMind.hueBlink);
+			particle.init(x, y, ParticleComponent.hueBlink);
 			addObject(particle);
 		}
 	}
