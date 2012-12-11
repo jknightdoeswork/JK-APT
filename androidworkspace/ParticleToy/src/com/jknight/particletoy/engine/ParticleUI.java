@@ -2,8 +2,6 @@ package com.jknight.particletoy.engine;
 
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-
-import com.android.angle.AngleActivity;
 import com.android.angle.AngleObject;
 
 public class ParticleUI extends AngleObject {
