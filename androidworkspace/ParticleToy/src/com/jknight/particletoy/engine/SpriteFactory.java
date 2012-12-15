@@ -9,20 +9,19 @@ import android.util.Log;
 
 import com.android.angle.AngleObject;
 
-public class SpriteFactory<T extends AngleObject> {
+public class SpriteFactory<T extends Particle> {
 
-	private Class<? extends AngleObject> _type;
+	private Class<? extends Particle> _type;
 	private int _size;
 	private T[] _objects;
 	private LinkedList<T> _freeList;
-	private int _drawableId;
+	private ParticleEngine _pEngine;
 	
-	
-	public SpriteFactory(Class<? extends AngleObject> type, int size, int drawableId) throws InstantiationException, IllegalAccessException {
+	public SpriteFactory(Class<? extends Particle> type, int size, ParticleEngine pEngine) throws InstantiationException, IllegalAccessException {
 		_type = type;
 		_size = size;
+		_pEngine = pEngine;
 		_freeList = new LinkedList<T>();
-		_drawableId = drawableId;
 		allocateObjects();
 	}
 	/**
@@ -39,8 +38,8 @@ public class SpriteFactory<T extends AngleObject> {
 		_freeList.clear();
 		_objects = (T[]) Array.newInstance(_type, _size);
 		for (int i = 0; i < _size; i++) {
-			Class<?>[] parameterTypes = {SpriteFactory.class};
-			Object[] parameterValues = {this};
+			Class<?>[] parameterTypes = {SpriteFactory.class, ParticleEngine.class};
+			Object[] parameterValues = {this, _pEngine};
 			try {
 				_objects[i] = (T) _type.getConstructor(parameterTypes).newInstance(parameterValues);
 			} catch (IllegalArgumentException e) {
@@ -77,6 +76,7 @@ public class SpriteFactory<T extends AngleObject> {
 	public void returnFreeObject(T toReturn) {
 		_freeList.addLast(toReturn);
 	}
+
 	public void freeAll() {
 		_freeList.clear();
 		for (T sprite : _objects) {

@@ -21,8 +21,7 @@ public class ParticleToyActivity extends Activity {
 	public GLSurfaceView mGLSurfaceView; // The main GL View
 	MyGLRenderer renderer;
 	public View optionsView; // The options dropdown
-	ParticleUI pUI;
-	ParticleEngine pEngine;
+
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,25 +33,19 @@ public class ParticleToyActivity extends Activity {
         optionsView = findViewById(R.id.frag_container);
         optionsView.setVisibility(View.INVISIBLE);
         
-        pEngine = new ParticleEngine(1000);
+
     	mGLSurfaceView = (GLSurfaceView) findViewById(R.id.glsurfaceview);
 		// detect if OpenGL ES 2.0 support exists - if it doesn't, exit.
 		if (detectOpenGLES20()) {
 			// Tell the surface view we want to create an OpenGL ES 2.0-compatible
 			// context, and set an OpenGL ES 2.0-compatible renderer.
 			mGLSurfaceView.setEGLContextClientVersion(2);
-			renderer = new MyGLRenderer(pEngine);
+			renderer = new MyGLRenderer();
 			mGLSurfaceView.setRenderer(renderer);
 		} 
 		else { // quit if no support - get a better phone! :P
 			this.finish();
 		}
-        
-//        // create particle engine
-//        mGLSurfaceView.addObject(pEngine);
-//        
-        // create ui controller
-        pUI = new ParticleUI(pEngine);
     }
     
 	/**
@@ -82,7 +75,7 @@ public class ParticleToyActivity extends Activity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.clear:
-            	pEngine.clear();
+            	renderer.mPEngine.clear();
             	return true;
             case R.id.options:
             	if (optionsView.getVisibility() == View.VISIBLE) {
@@ -110,8 +103,8 @@ public class ParticleToyActivity extends Activity {
     @Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
-		if (pUI != null)
-			if (pUI.onTouchEvent(event))
+		if (renderer.mPEngine.mPUI != null)
+			if (renderer.mPEngine.mPUI.onTouchEvent(event))
 				return true;
 		return super.onTouchEvent(event);
 	}
@@ -119,8 +112,8 @@ public class ParticleToyActivity extends Activity {
 	@Override
 	public boolean onTrackballEvent(MotionEvent event)
 	{
-		if (pUI != null)
-			if (pUI.onTrackballEvent(event))
+		if (renderer.mPEngine.mPUI != null)
+			if (renderer.mPEngine.mPUI.onTrackballEvent(event))
 				return true;
 		return super.onTrackballEvent(event);
 	}
@@ -128,8 +121,8 @@ public class ParticleToyActivity extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		if (pUI != null)
-			if (pUI.onKeyDown(keyCode, event))
+		if (renderer.mPEngine.mPUI != null)
+			if (renderer.mPEngine.mPUI.onKeyDown(keyCode, event))
 				return true;
 		return super.onKeyDown(keyCode, event);
 	}
@@ -139,8 +132,8 @@ public class ParticleToyActivity extends Activity {
 	{
 		super.onPause();
 		mGLSurfaceView.onPause();
-		if (pUI != null)
-			pUI.onPause();
+		if (renderer.mPEngine.mPUI != null)
+			renderer.mPEngine.mPUI.onPause();
 	}
 
 	@Override
@@ -148,8 +141,13 @@ public class ParticleToyActivity extends Activity {
 	{
 		super.onResume();
 		mGLSurfaceView.onResume();
-		if (pUI != null)
-			pUI.onResume();
+		try {
+			renderer.mPEngine.mPUI.onResume();
+		}
+		catch (NullPointerException e) {
+			
+		}
+		
 	}
     
     /* Handles blink toggle */
