@@ -1,18 +1,19 @@
 package com.jknight.particletoy.engine;
 
-import javax.microedition.khronos.opengles.GL10;
-
 import com.android.angle.AngleObject;
+import com.android.angle.AngleSurfaceView;
+import com.jknight.particletoy.ParticleToyActivity;
 import com.jknight.particletoy.R;
 
 public class ParticleEngine extends AngleObject {
 	
+	AngleSurfaceView _surface;
 	SpriteFactory<Particle> _pFactory;
 	
-	public ParticleEngine(int maxChildren) {
+	public ParticleEngine(ParticleToyActivity activity, int maxChildren) {
 		super(maxChildren);
 		try {
-			_pFactory = new SpriteFactory<Particle>(Particle.class, maxChildren, R.drawable.stary_aura);
+			_pFactory = new SpriteFactory<Particle>(Particle.class, maxChildren, R.drawable.stary_aura, _surface);
 		} catch (InstantiationException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -25,7 +26,7 @@ public class ParticleEngine extends AngleObject {
 	public void addParticle(float x, float y) {
 		Particle particle = _pFactory.getFreeObject();
 		if (null != particle) {
-			particle.init(x, y, ParticleComponent.sheep);
+			particle.init(x, y, ParticleComponent.hueBlink);
 			addObject(particle);
 		}
 	}
@@ -37,13 +38,5 @@ public class ParticleEngine extends AngleObject {
 	public void clear() {
 		removeAll();
 		_pFactory.freeAll();
-	}
-
-	public void draw(float[] mMVPMatrix) {
-		for (int t=0;t<mChildsCount;t++) {
-			Particle child = (Particle)mChilds[t];
-			child.draw(mMVPMatrix);
-		}
-			
 	}
 }

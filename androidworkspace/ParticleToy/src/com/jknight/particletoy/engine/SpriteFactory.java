@@ -7,22 +7,26 @@ import java.util.NoSuchElementException;
 
 import android.util.Log;
 
-import com.android.angle.AngleObject;
+import com.android.angle.AngleSprite;
+import com.android.angle.AngleSpriteLayout;
+import com.android.angle.AngleSurfaceView;
 
-public class SpriteFactory<T extends AngleObject> {
+public class SpriteFactory<T extends AngleSprite> {
 
-	private Class<? extends AngleObject> _type;
+	private Class<? extends AngleSprite> _type;
 	private int _size;
 	private T[] _objects;
 	private LinkedList<T> _freeList;
 	private int _drawableId;
+	private AngleSurfaceView _surface;	
 	
 	
-	public SpriteFactory(Class<? extends AngleObject> type, int size, int drawableId) throws InstantiationException, IllegalAccessException {
+	public SpriteFactory(Class<? extends AngleSprite> type, int size, int drawableId, AngleSurfaceView surface) throws InstantiationException, IllegalAccessException {
 		_type = type;
 		_size = size;
 		_freeList = new LinkedList<T>();
 		_drawableId = drawableId;
+		_surface = surface;
 		allocateObjects();
 	}
 	/**
@@ -39,8 +43,9 @@ public class SpriteFactory<T extends AngleObject> {
 		_freeList.clear();
 		_objects = (T[]) Array.newInstance(_type, _size);
 		for (int i = 0; i < _size; i++) {
-			Class<?>[] parameterTypes = {SpriteFactory.class};
-			Object[] parameterValues = {this};
+			AngleSpriteLayout layout = new AngleSpriteLayout(_surface, _drawableId);
+			Class<?>[] parameterTypes = {AngleSpriteLayout.class, SpriteFactory.class};
+			Object[] parameterValues = {layout, this};
 			try {
 				_objects[i] = (T) _type.getConstructor(parameterTypes).newInstance(parameterValues);
 			} catch (IllegalArgumentException e) {

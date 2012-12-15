@@ -12,7 +12,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-
+import com.android.angle.AngleSurfaceView;
 import com.jknight.particletoy.engine.ParticleEngine;
 import com.jknight.particletoy.engine.ParticleUI;
 
@@ -21,8 +21,8 @@ public class ParticleToyActivity extends Activity {
 	public GLSurfaceView mGLSurfaceView; // The main GL View
 	MyGLRenderer renderer;
 	public View optionsView; // The options dropdown
-	ParticleUI pUI;
 	ParticleEngine pEngine;
+	ParticleUI pUI;
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -34,14 +34,14 @@ public class ParticleToyActivity extends Activity {
         optionsView = findViewById(R.id.frag_container);
         optionsView.setVisibility(View.INVISIBLE);
         
-        pEngine = new ParticleEngine(1000);
+
     	mGLSurfaceView = (GLSurfaceView) findViewById(R.id.glsurfaceview);
 		// detect if OpenGL ES 2.0 support exists - if it doesn't, exit.
 		if (detectOpenGLES20()) {
 			// Tell the surface view we want to create an OpenGL ES 2.0-compatible
 			// context, and set an OpenGL ES 2.0-compatible renderer.
 			mGLSurfaceView.setEGLContextClientVersion(2);
-			renderer = new MyGLRenderer(pEngine);
+			renderer = new MyGLRenderer();
 			mGLSurfaceView.setRenderer(renderer);
 		} 
 		else { // quit if no support - get a better phone! :P
@@ -49,10 +49,12 @@ public class ParticleToyActivity extends Activity {
 		}
         
 //        // create particle engine
+//        pEngine = new ParticleEngine(this, 1000);
 //        mGLSurfaceView.addObject(pEngine);
 //        
-        // create ui controller
-        pUI = new ParticleUI(pEngine);
+//        // create ui controller
+//        pUI = new ParticleUI(pEngine);
+//        mGLSurfaceView.addObject(pUI);
     }
     
 	/**
@@ -110,9 +112,9 @@ public class ParticleToyActivity extends Activity {
     @Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
-		if (pUI != null)
-			if (pUI.onTouchEvent(event))
-				return true;
+//		if (pUI != null)
+//			if (pUI.onTouchEvent(event))
+//				return true;
 		return super.onTouchEvent(event);
 	}
 

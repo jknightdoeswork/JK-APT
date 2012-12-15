@@ -24,8 +24,6 @@ import java.nio.ShortBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import com.jknight.particletoy.engine.ParticleEngine;
-
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -36,26 +34,22 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "MyGLRenderer";
     private Triangle mTriangle;
-    private Square mSquare;
-    public ParticleEngine mPEngine;
+    private Square   mSquare;
 
     private final float[] mMVPMatrix = new float[16];
     private final float[] mProjMatrix = new float[16];
     private final float[] mVMatrix = new float[16];
     private final float[] mRotationMatrix = new float[16];
-    private float lastTime = 0.0f;
 
     // Declare as volatile because we are updating it from another thread
     public volatile float mAngle;
 
-    public MyGLRenderer(ParticleEngine engine) {
-    	mPEngine = engine;
-    }
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 
         // Set the background frame color
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+
         mTriangle = new Triangle();
         mSquare   = new Square();
     }
@@ -71,17 +65,12 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         // Calculate the projection and view transformation
         Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mVMatrix, 0);
-        long time = SystemClock.currentThreadTimeMillis();
-        float secondsElapsed = (time - lastTime)/1000.0f;
-        lastTime = time;
-        mPEngine.step(secondsElapsed);
-        mPEngine.draw(mMVPMatrix);
-        
+
         // Draw square
-//        mSquare.draw(mMVPMatrix);
+        mSquare.draw(mMVPMatrix);
 
         // Create a rotation for the triangle
-
+        long time = SystemClock.uptimeMillis() % 4000L;
         float angle = 0.090f * ((int) time);
         Matrix.setRotateM(mRotationMatrix, 0, angle, 0, 0, -1.0f);
 
@@ -90,8 +79,6 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
         // Draw triangle
         mTriangle.draw(mMVPMatrix);
-        
-        
     }
 
     @Override
