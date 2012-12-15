@@ -12,6 +12,7 @@ public class ParticleEngine extends AngleObject {
 	
 	public ParticleEngine(ParticleToyActivity activity, int maxChildren) {
 		super(maxChildren);
+		_surface = activity.mGLSurfaceView;
 		try {
 			_pFactory = new SpriteFactory<Particle>(Particle.class, maxChildren, R.drawable.stary_aura, _surface);
 		} catch (InstantiationException e) {
