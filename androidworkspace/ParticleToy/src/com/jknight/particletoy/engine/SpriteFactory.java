@@ -38,8 +38,8 @@ public class SpriteFactory<T extends Particle> {
 		_freeList.clear();
 		_objects = (T[]) Array.newInstance(_type, _size);
 		for (int i = 0; i < _size; i++) {
-			Class<?>[] parameterTypes = {SpriteFactory.class, ParticleEngine.class};
-			Object[] parameterValues = {this, _pEngine};
+			Class<?>[] parameterTypes = {SpriteFactory.class, ParticleEngine.class, int.class};
+			Object[] parameterValues = {this, _pEngine, i};
 			try {
 				_objects[i] = (T) _type.getConstructor(parameterTypes).newInstance(parameterValues);
 			} catch (IllegalArgumentException e) {

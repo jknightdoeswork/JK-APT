@@ -37,14 +37,21 @@ import android.util.Log;
 public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     private static final String TAG = "MyGLRenderer";
-    private Triangle mTriangle;
+    
+    /** Child Engine **/
     public ParticleEngine mPEngine;
-
-    private final float[] mMVPMatrix = new float[16];
+    
+    /** Misc Fields **/
+    private float lastTime = 0.0f;
+    private float elapsed;
+    public int viewportWidth;
+    public int viewportHeight;
+    public float ratio;
+    
+    /** MATRICES **/
     private final float[] mProjMatrix = new float[16];
     private final float[] mVMatrix = new float[16];
-    private final float[] mRotationMatrix = new float[16];
-    private float lastTime = 0.0f;
+    
 
     // Declare as volatile because we are updating it from another thread
     public volatile float mAngle;
@@ -54,56 +61,47 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-        // Set the background frame color
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        mTriangle = new Triangle();
-        mPEngine = new ParticleEngine(1000);
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set the background frame color
+        mPEngine = new ParticleEngine(1000, this); // needs surface to exist
+        // Set the camera position (View matrix) will only happen once
+        
+//        Matrix.setLookAtM(mVMatrix, 0, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, -5.0f, 0.0f, 1.0f, 0.0f);
+        Matrix.setIdentityM(mVMatrix, 0);
     }
 
     @Override
     public void onDrawFrame(GL10 unused) {
+    	long time = SystemClock.currentThreadTimeMillis();
+        elapsed = (time - lastTime)/1000.0f;
+        lastTime = time;
         // Draw background color
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
-        // Set the camera position (View matrix)
-        Matrix.setLookAtM(mVMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-
-        // Calculate the projection and view transformation
-        Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mVMatrix, 0);
-        long time = SystemClock.currentThreadTimeMillis();
-        float secondsElapsed = (time - lastTime)/1000.0f;
-        lastTime = time;
-        mPEngine.step(secondsElapsed);
-        mPEngine.draw(mMVPMatrix);
-
-        // Create a rotation for the triangle
-
-        float angle = 0.090f * ((int) time);
-        Matrix.setRotateM(mRotationMatrix, 0, angle, 0, 0, -1.0f);
-
-        // Combine the rotation matrix with the projection and camera view
-        Matrix.multiplyMM(mMVPMatrix, 0, mRotationMatrix, 0, mMVPMatrix, 0);
-
-        // Draw triangle
-    	// mTriangle.draw(mMVPMatrix);
+        // Utilities.displayMatrix("MVP Matrix", mMVPMatrix);
+        float[] testVector = { 0.5f, 0.5f, 0.0f, 1.0f };
+        
+        mPEngine.step(elapsed);
+        mPEngine.draw(mVMatrix, mProjMatrix);
     }
 
     @Override
     public void onSurfaceChanged(GL10 unused, int width, int height) {
+    	viewportWidth = width;
+    	viewportHeight = height;
         // Adjust the viewport based on geometry changes,
         // such as screen rotation
         GLES20.glViewport(0, 0, width, height);
 
-        float ratio = (float) width / height;
+        // Create a new perspective projection matrix. The height will stay the same
+        // while the width will vary as per aspect ratio.
+        ratio = (float) width / height;
 
-        // this projection matrix is applied to object coordinates
-        // in the onDrawFrame() method
-        Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
-
+         Matrix.orthoM(mProjMatrix, 0, -ratio, ratio, -1.0f, 1.0f, 0.0f, 10.0f);
+         // Frustum can be used for 3d projections
+//          Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1.0f, 1.0f, 1.0f, 10.0f);
     }
 
-    public static int loadShader(int type, String shaderCode){
-
+    public static int loadShader(int type, String shaderCode) {
         // create a vertex shader type (GLES20.GL_VERTEX_SHADER)
         // or a fragment shader type (GLES20.GL_FRAGMENT_SHADER)
         int shader = GLES20.glCreateShader(type);

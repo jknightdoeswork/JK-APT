@@ -3,6 +3,7 @@ package com.jknight.particletoy.engine;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.android.angle.AngleObject;
 import com.jknight.particletoy.MyGLRenderer;
@@ -19,29 +20,32 @@ public class ParticleEngine extends AngleObject {
     public int mPositionHandle; // Handles to uniforms of currently running shader
     public int mColorHandle;
     public int mMVPMatrixHandle;
-
+    
+    /** Renderer reference **/
+    public MyGLRenderer renderer;
+    
     /** TEMP SHADER CODE **/
     private final String vertexShaderCode =
-            // This matrix member variable provides a hook to manipulate
-            // the coordinates of the objects that use this vertex shader
-            "uniform mat4 uMVPMatrix;" +
+        // This matrix member variable provides a hook to manipulate
+        // the coordinates of the objects that use this vertex shader
+        "uniform mat4 uMVPMatrix;" +
 
-            "attribute vec4 vPosition;" +
-            "void main() {" +
-            // the matrix must be included as a modifier of gl_Position
-            "  gl_Position = vPosition * uMVPMatrix;" +
-            "}";
+        "attribute vec4 vPosition;" +
+        "void main() {" +
+        // the matrix must be included as a modifier of gl_Position
+        "  gl_Position =  uMVPMatrix * vPosition; \n" +
+        "}";
 
-        private final String fragmentShaderCode =
-            "precision mediump float;" +
-            "uniform vec4 vColor;" +
-            "void main() {" +
-            "  gl_FragColor = vColor;" +
-            "}";
+    private final String fragmentShaderCode =
+        "precision mediump float;" +
+        "uniform vec4 vColor;" +
+        "void main() {" +
+        "  gl_FragColor = vColor;" +
+        "}";
 
-	public ParticleEngine(int maxChildren) {
+	public ParticleEngine(int maxChildren, MyGLRenderer pRenderer) {
 		super(maxChildren);
-		
+		renderer = pRenderer;
 		/** PARTICLE ENGINE CONSTRUCTION **/
 		try {
 			_pFactory = new SpriteFactory<Particle>(Particle.class, maxChildren, this);
@@ -74,6 +78,7 @@ public class ParticleEngine extends AngleObject {
 
         // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
+        Log.i("Program Handle", " " + mProgram);
 
         // get handle to vertex shader's vPosition member
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
@@ -104,10 +109,10 @@ public class ParticleEngine extends AngleObject {
 		_pFactory.freeAll();
 	}
 
-	public void draw(float[] mMVPMatrix) {
+	public void draw(float[] mVMatrix, float[] mProjMatrix) {
 		for (int t=0;t<mChildsCount;t++) {
 			Particle child = (Particle)mChilds[t];
-			child.draw(mMVPMatrix);
+			child.draw(mVMatrix, mProjMatrix);
 		}
 			
 	}
