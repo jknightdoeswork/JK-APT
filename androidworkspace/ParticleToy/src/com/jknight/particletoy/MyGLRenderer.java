@@ -19,14 +19,11 @@ package com.jknight.particletoy;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import com.jknight.particletoy.engine.FrameRateCounter;
 import com.jknight.particletoy.engine.ParticleEngine;
-import com.jknight.particletoy.engine.Particle;
-import com.jknight.particletoy.engine.ParticleUI;
 
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
@@ -40,6 +37,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     
     /** Child Engine **/
     public ParticleEngine mPEngine;
+    public FrameRateCounter mFCounter; 
     
     /** Misc Fields **/
     private float lastTime = 0.0f;
@@ -57,6 +55,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public volatile float mAngle;
 
     public MyGLRenderer() {
+    	mFCounter = new FrameRateCounter(5);
+    	mFCounter.loggingEnabled = true;
     }
 
     @Override
@@ -78,9 +78,9 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 
         // Utilities.displayMatrix("MVP Matrix", mMVPMatrix);
-        float[] testVector = { 0.5f, 0.5f, 0.0f, 1.0f };
         
         mPEngine.step(elapsed);
+        mFCounter.step(elapsed);
         mPEngine.draw(mVMatrix, mProjMatrix);
     }
 
@@ -97,6 +97,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         ratio = (float) width / height;
 
          Matrix.orthoM(mProjMatrix, 0, -ratio, ratio, -1.0f, 1.0f, 0.0f, 10.0f);
+         Log.i("Gl Info", "w: " + width + " h: " + height + " r: " + ratio);
          // Frustum can be used for 3d projections
 //          Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1.0f, 1.0f, 1.0f, 10.0f);
     }

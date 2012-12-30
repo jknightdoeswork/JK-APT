@@ -3,15 +3,19 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.pm.ConfigurationInfo;
+import android.graphics.Point;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.jknight.particletoy.engine.ParticleEngine;
 import com.jknight.particletoy.engine.ParticleUI;
@@ -21,6 +25,8 @@ public class ParticleToyActivity extends Activity {
 	public GLSurfaceView mGLSurfaceView; // The main GL View
 	MyGLRenderer renderer;
 	public View optionsView; // The options dropdown
+	private final String LOG_TAG = "ParticleToyActivity";
+	private TextView frameRateView;
 
 	/** Called when the activity is first created. */
     @Override
@@ -35,6 +41,7 @@ public class ParticleToyActivity extends Activity {
         
 
     	mGLSurfaceView = (GLSurfaceView) findViewById(R.id.glsurfaceview);
+
 		// detect if OpenGL ES 2.0 support exists - if it doesn't, exit.
 		if (detectOpenGLES20()) {
 			// Tell the surface view we want to create an OpenGL ES 2.0-compatible
@@ -46,6 +53,7 @@ public class ParticleToyActivity extends Activity {
 		else { // quit if no support - get a better phone! :P
 			this.finish();
 		}
+
     }
     
 	/**
