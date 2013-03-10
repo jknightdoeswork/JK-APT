@@ -27,7 +27,7 @@ public class ParticleEngine extends AngleObject {
 	/** SHADER FIELDS **/
     public int mProgram; // Currently running shader
     public int mPositionHandle; // Handles to uniforms of currently running shader
-    public int mColorHandle;
+
     public int mParticleCenterHandle; // Center of particle
     public int mMVPMatrixHandle; // Model-View-Projection Matrix Shader Handle
     public int mTexCoordHandle; // handle to vertex shader's tex coords
@@ -52,11 +52,11 @@ public class ParticleEngine extends AngleObject {
 
     private final String fragmentShaderCode =
         "precision mediump float;" +
-        "uniform vec4 vColor;" +
-        "varying lowp vec2 texCoordOut;" +
-        "uniform sampler2D Texture;" +
+        "varying vec2 texCoordOut;" +
+        "uniform sampler2D u_texture;" +
         "void main() {" +
-        "  gl_FragColor = vColor * texture2D(texture, texCoordOut);\n	" +
+        " vec4 texColor = texture2D(u_texture, texCoordOut);\n" +
+        "  gl_FragColor = texColor;" +
         "}";
 
     //DRAW DATA
@@ -99,17 +99,17 @@ public class ParticleEngine extends AngleObject {
 		attachShader(vertexShaderCode, fragmentShaderCode);
 
         // initialize vertex byte buffer for shape coordinates
-        ByteBuffer bb = ByteBuffer.allocateDirect(
-        // (# of coordinate values * 4 bytes per float)
-                squareCoords.length * 4);
+        ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4); // (# of coordinate values * 4 bytes per float)
         bb.order(ByteOrder.nativeOrder());
         vertexBuffer = bb.asFloatBuffer();
         vertexBuffer.put(squareCoords);
         vertexBuffer.position(0);
         
-        texCoordBuffer = ByteBuffer.allocateDirect(textureCoords.length * 4)
-        		.order(ByteOrder.nativeOrder()).asFloatBuffer();
-		texCoordBuffer.put(textureCoords).position(0);
+        ByteBuffer tcbb = ByteBuffer.allocateDirect(textureCoords.length * 4);
+        tcbb.order(ByteOrder.nativeOrder());
+        texCoordBuffer = tcbb.asFloatBuffer();
+		texCoordBuffer.put(textureCoords);
+		texCoordBuffer.position(0);
 
         // initialize byte buffer for the draw list
         ByteBuffer dlb = ByteBuffer.allocateDirect(
@@ -121,7 +121,8 @@ public class ParticleEngine extends AngleObject {
         drawListBuffer.position(0);
         
         // load texture
-        textureDataHandle = loadTexture(this.renderer.context, R.drawable.stary_aura);
+        textureDataHandle = loadTexture(this.renderer.context, R.drawable.china_2011_42);
+        Log.i("TEX DATA HANDLE", " " + textureDataHandle);
 	}
 	
 	public void draw(float[] mVMatrix, float[] mProjMatrix) {
@@ -130,20 +131,22 @@ public class ParticleEngine extends AngleObject {
         // Prepare the triangle coordinate data
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
                                      GLES20.GL_FLOAT, false,
-                                     vertexStride, vertexBuffer);
-        
+                                     0, vertexBuffer);
+        GLES20.glEnableVertexAttribArray(mTexCoordHandle);
         GLES20.glVertexAttribPointer(mTexCoordHandle, TEX_COORDS_PER_VERTEX,
         							 GLES20.GL_FLOAT, false,
-        							 texCoordStride, texCoordBuffer);
+        							 0, texCoordBuffer);
         
         // Set the active texture unit to texture unit 0.
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         
         // Bind the texture to this unit.
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureDataHandle);
-        
+        MyGLRenderer.checkGlError("Texture bind");
+
         // Tell the texture uniform sampler to use this texture in the shader by binding to texture unit 0.
-        GLES20.glUniform1i(mTexCoordHandle, 0);     
+        GLES20.glUniform1i(mTexHandle, 0);  
+        MyGLRenderer.checkGlError("Texture upload");
         
 		for (int t=0;t<mChildsCount;t++) {
 			Particle child = (Particle)mChilds[t];
@@ -151,6 +154,7 @@ public class ParticleEngine extends AngleObject {
 		}
         // Disable vertex array
         GLES20.glDisableVertexAttribArray(mPositionHandle);
+        GLES20.glDisableVertexAttribArray(mTexCoordHandle);
 			
 	}
 
@@ -180,8 +184,8 @@ public class ParticleEngine extends AngleObject {
         // get handle to vertex shader's vPosition member
         mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
         MyGLRenderer.checkGlError("glGetAttribLocation");
+        Log.i("Position Shader Handle", " " + mPositionHandle);
         // get handle to fragment shader's vColor member
-        mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
         MyGLRenderer.checkGlError("glGetUniformLocation");
         // get handle to fragment shader's particleCenter member
         // mParticleCenterHandle = GLES20.glGetUniformLocation(mProgram, "particleCenter");
@@ -193,10 +197,12 @@ public class ParticleEngine extends AngleObject {
         // get handle to texture coords
         mTexCoordHandle = GLES20.glGetAttribLocation(mProgram, "texCoord");
         MyGLRenderer.checkGlError("glGetAttribLocation");
+        Log.i("TEXCOORD SHADER HANDLE", " " + mTexCoordHandle);
         
         //get handle to texture
-        mTexCoordHandle = GLES20.glGetAttribLocation(mProgram, "texture");
-        MyGLRenderer.checkGlError("glGetAttribLocation");
+        mTexHandle = GLES20.glGetUniformLocation(mProgram, "u_texture");
+        MyGLRenderer.checkGlError("glGetUniformLocation");
+        Log.i("TEX SHADER HANDLE", " " + mTexHandle);
 	}
 	public void addParticle(float x, float y) {
 		Particle particle = _pFactory.getFreeObject();
@@ -228,7 +234,9 @@ public class ParticleEngine extends AngleObject {
 	 
 	        // Read in the resource
 	        final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
-	 
+	        if (bitmap == null) {
+	        	throw new RuntimeException("Error decoding bitmap");
+	        }
 	        // Bind to the texture in OpenGL
 	        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
 	 

@@ -42,7 +42,7 @@ public class FrameRateCounter {
 		if (total != 0)
 			average = n / total;
 		if (loggingEnabled) {
-			Log.i(LOG_TAG, "" + average);
+			Log.v(LOG_TAG, "" + average);
 		}
 	}
 

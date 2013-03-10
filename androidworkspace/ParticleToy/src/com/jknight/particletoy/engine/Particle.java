@@ -48,14 +48,14 @@ public class Particle extends AngleObject{
     	// Set up local transform matrix
     	Matrix.setIdentityM(mMvpMatrix, 0);
     	Matrix.translateM(mMvpMatrix, 0, mScreenX, mScreenY, 0.0f); // Translate before scale should be wrong but isnt....
-    	Matrix.scaleM(mMvpMatrix, 0, 0.5f, 0.5f, 1.0f);
+    	//Matrix.scaleM(mMvpMatrix, 0, 0.5f, 0.5f, 1.0f);
     	
     	// Apply view and projection matrices
     	Matrix.multiplyMM(mMvpMatrix, 0, mVMatrix, 0, mMvpMatrix, 0);
     	Matrix.multiplyMM(mMvpMatrix, 0, mProjMatrix, 0, mMvpMatrix, 0);
         
         // Set color for drawing the triangle
-        GLES20.glUniform4fv(mPEngine.mColorHandle, 1, color, 0);
+//        GLES20.glUniform4fv(mPEngine.mColorHandle, 1, color, 0);
         
         // Apply the projection and view transformation
         GLES20.glUniformMatrix4fv(mPEngine.mMVPMatrixHandle, 1, false, mMvpMatrix, 0);

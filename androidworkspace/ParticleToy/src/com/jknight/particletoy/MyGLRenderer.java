@@ -58,7 +58,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
 
     public MyGLRenderer(Context context) {
     	mFCounter = new FrameRateCounter(5);
-    	mFCounter.loggingEnabled = true;
+    	mFCounter.loggingEnabled = false;
     	this.context = context;
     }
 
