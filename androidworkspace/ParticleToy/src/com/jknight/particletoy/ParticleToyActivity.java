@@ -47,7 +47,7 @@ public class ParticleToyActivity extends Activity {
 			// Tell the surface view we want to create an OpenGL ES 2.0-compatible
 			// context, and set an OpenGL ES 2.0-compatible renderer.
 			mGLSurfaceView.setEGLContextClientVersion(2);
-			renderer = new MyGLRenderer();
+			renderer = new MyGLRenderer(this);
 			mGLSurfaceView.setRenderer(renderer);
 		} 
 		else { // quit if no support - get a better phone! :P

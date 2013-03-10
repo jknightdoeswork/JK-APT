@@ -25,6 +25,7 @@ import javax.microedition.khronos.opengles.GL10;
 import com.jknight.particletoy.engine.FrameRateCounter;
 import com.jknight.particletoy.engine.ParticleEngine;
 
+import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -38,6 +39,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     /** Child Engine **/
     public ParticleEngine mPEngine;
     public FrameRateCounter mFCounter; 
+    public Context context;
     
     /** Misc Fields **/
     private float lastTime = 0.0f;
@@ -54,9 +56,10 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     // Declare as volatile because we are updating it from another thread
     public volatile float mAngle;
 
-    public MyGLRenderer() {
+    public MyGLRenderer(Context context) {
     	mFCounter = new FrameRateCounter(5);
     	mFCounter.loggingEnabled = true;
+    	this.context = context;
     }
 
     @Override
