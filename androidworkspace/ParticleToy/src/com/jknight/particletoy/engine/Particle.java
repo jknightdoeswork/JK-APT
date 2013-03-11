@@ -48,7 +48,7 @@ public class Particle extends AngleObject{
     	// Set up local transform matrix
     	Matrix.setIdentityM(mMvpMatrix, 0);
     	Matrix.translateM(mMvpMatrix, 0, mScreenX, mScreenY, 0.0f); // Translate before scale should be wrong but isnt....
-    	//Matrix.scaleM(mMvpMatrix, 0, 0.5f, 0.5f, 1.0f);
+    	Matrix.scaleM(mMvpMatrix, 0, 0.25f, 0.25f, 1.0f);
     	
     	// Apply view and projection matrices
     	Matrix.multiplyMM(mMvpMatrix, 0, mVMatrix, 0, mMvpMatrix, 0);
@@ -64,8 +64,8 @@ public class Particle extends AngleObject{
         MyGLRenderer.checkGlError("glUniformMatrix4fv");
         
         // Draw the square
-        GLES20.glDrawElements(GLES20.GL_TRIANGLES, mPEngine.drawOrder.length,
-                              GLES20.GL_UNSIGNED_SHORT, mPEngine.drawListBuffer);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6); 
+
 
     }
 

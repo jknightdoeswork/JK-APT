@@ -61,26 +61,26 @@ public class ParticleEngine extends AngleObject {
 
     //DRAW DATA
     private final FloatBuffer vertexBuffer;
-    public final ShortBuffer drawListBuffer;
     private final FloatBuffer texCoordBuffer;
 
     // number of coordinates per vertex in this array
-    static final int COORDS_PER_VERTEX = 3;
-    static float squareCoords[] = { -0.5f,  0.5f, 0.0f,   // top left
-                                    -0.5f, -0.5f, 0.0f,   // bottom left
-                                     0.5f, -0.5f, 0.0f,   // bottom right
-                                     0.5f,  0.5f, 0.0f }; // top right
-    static final int TEX_COORDS_PER_VERTEX = 2;
-    static float textureCoords[] = { 0.0f, 1.0f,  // top left
-    								 0.0f, 0.0f,  // bottom left
-    								 1.0f, 0.0f,  // bottom right
-    								 1.0f, 1.0f}; // top right
+    static float squareCoords[] = {-1.0f, 1.0f, 0.0f,				
+								   -1.0f, -1.0f, 0.0f,
+									1.0f, 1.0f, 0.0f, 
+								   -1.0f, -1.0f, 0.0f, 				
+									1.0f, -1.0f, 0.0f,
+									1.0f, 1.0f, 0.0f,}; // top right
+    static int squareCoordsPerVertex = 3;
+    static float textureCoords[] = { 0.0f, 0.0f, 				
+									0.0f, 1.0f,
+									1.0f, 0.0f,
+									0.0f, 1.0f,
+									1.0f, 1.0f,
+									1.0f, 0.0f}; // top right
+    static int textureCoordsPerVertex = 2;
     
     private int textureDataHandle; // handle to the texture data we loaded onto GPU
 
-    public final short drawOrder[] = { 0, 1, 2, 0, 2, 3 }; // order to draw vertices
-    private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
-    private final int texCoordStride = TEX_COORDS_PER_VERTEX * 4; // 4 bytes/float
     
 	public ParticleEngine(int maxChildren, MyGLRenderer pRenderer) {
 		super(maxChildren);
@@ -110,18 +110,9 @@ public class ParticleEngine extends AngleObject {
         texCoordBuffer = tcbb.asFloatBuffer();
 		texCoordBuffer.put(textureCoords);
 		texCoordBuffer.position(0);
-
-        // initialize byte buffer for the draw list
-        ByteBuffer dlb = ByteBuffer.allocateDirect(
-        // (# of coordinate values * 2 bytes per short)
-                drawOrder.length * 2);
-        dlb.order(ByteOrder.nativeOrder());
-        drawListBuffer = dlb.asShortBuffer();
-        drawListBuffer.put(drawOrder);
-        drawListBuffer.position(0);
-        
+		
         // load texture
-        textureDataHandle = loadTexture(this.renderer.context, R.drawable.china_2011_42);
+        textureDataHandle = loadTexture(this.renderer.context, R.drawable.stary_aura);
         Log.i("TEX DATA HANDLE", " " + textureDataHandle);
 	}
 	
@@ -129,11 +120,11 @@ public class ParticleEngine extends AngleObject {
     	// Enable a handle to the triangle vertices
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         // Prepare the triangle coordinate data
-        GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX,
+        GLES20.glVertexAttribPointer(mPositionHandle, squareCoordsPerVertex,
                                      GLES20.GL_FLOAT, false,
                                      0, vertexBuffer);
         GLES20.glEnableVertexAttribArray(mTexCoordHandle);
-        GLES20.glVertexAttribPointer(mTexCoordHandle, TEX_COORDS_PER_VERTEX,
+        GLES20.glVertexAttribPointer(mTexCoordHandle, textureCoordsPerVertex,
         							 GLES20.GL_FLOAT, false,
         							 0, texCoordBuffer);
         
@@ -243,6 +234,8 @@ public class ParticleEngine extends AngleObject {
 	        // Set filtering
 	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
 	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 	 
 	        // Load the bitmap into the bound texture.
 	        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
