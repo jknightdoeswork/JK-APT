@@ -48,7 +48,7 @@ public class Particle extends AngleObject{
     	// Set up local transform matrix
     	Matrix.setIdentityM(mMvpMatrix, 0);
     	Matrix.translateM(mMvpMatrix, 0, mScreenX, mScreenY, 0.0f); // Translate before scale should be wrong but isnt....
-    	Matrix.scaleM(mMvpMatrix, 0, 0.25f, 0.25f, 1.0f);
+    	Matrix.scaleM(mMvpMatrix, 0, 0.0250f, 0.0250f, 1.0f);
     	
     	// Apply view and projection matrices
     	Matrix.multiplyMM(mMvpMatrix, 0, mVMatrix, 0, mMvpMatrix, 0);

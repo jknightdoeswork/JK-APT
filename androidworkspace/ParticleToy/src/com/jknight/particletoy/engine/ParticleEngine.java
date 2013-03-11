@@ -117,6 +117,8 @@ public class ParticleEngine extends AngleObject {
 	}
 	
 	public void draw(float[] mVMatrix, float[] mProjMatrix) {
+//		GLES20.glClearColor(1.0f,1.0f,1,0f);
+//		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     	// Enable a handle to the triangle vertices
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         // Prepare the triangle coordinate data
