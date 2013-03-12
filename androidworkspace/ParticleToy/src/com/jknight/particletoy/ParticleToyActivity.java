@@ -1,22 +1,33 @@
 package com.jknight.particletoy;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.pm.ConfigurationInfo;
+import android.graphics.Point;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import com.android.angle.AngleSurfaceView;
+import android.view.WindowManager;
+import android.widget.TextView;
+
 import com.jknight.particletoy.engine.ParticleEngine;
 import com.jknight.particletoy.engine.ParticleUI;
 
 public class ParticleToyActivity extends Activity {
 	
-	public AngleSurfaceView mGLSurfaceView; // The main GL View
+	public GLSurfaceView mGLSurfaceView; // The main GL View
+	MyGLRenderer renderer;
 	public View optionsView; // The options dropdown
-	ParticleEngine pEngine;
-	ParticleUI pUI;
+	private final String LOG_TAG = "ParticleToyActivity";
+	private TextView frameRateView;
+
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,28 +39,35 @@ public class ParticleToyActivity extends Activity {
         optionsView = findViewById(R.id.frag_container);
         optionsView.setVisibility(View.INVISIBLE);
         
-        // create surface
-        try
-		{
-        	mGLSurfaceView = (AngleSurfaceView) findViewById(R.id.anglesurfaceview);
-			Thread.sleep(100);
-			mGLSurfaceView.setAwake(true);
-			mGLSurfaceView.start();
+
+    	mGLSurfaceView = (GLSurfaceView) findViewById(R.id.glsurfaceview);
+
+		// detect if OpenGL ES 2.0 support exists - if it doesn't, exit.
+		if (detectOpenGLES20()) {
+			// Tell the surface view we want to create an OpenGL ES 2.0-compatible
+			// context, and set an OpenGL ES 2.0-compatible renderer.
+			mGLSurfaceView.setEGLContextClientVersion(2);
+			renderer = new MyGLRenderer(this);
+			mGLSurfaceView.setRenderer(renderer);
+		} 
+		else { // quit if no support - get a better phone! :P
+			this.finish();
 		}
-		catch (InterruptedException e)
-		{
-			e.printStackTrace();
-		}
-        
-        // create particle engine
-        pEngine = new ParticleEngine(this, 1000);
-        mGLSurfaceView.addObject(pEngine);
-        
-        // create ui controller
-        pUI = new ParticleUI(pEngine);
-        mGLSurfaceView.addObject(pUI);
+
     }
     
+	/**
+	 * Detects if OpenGL ES 2.0 exists
+	 * @return true if it does
+	 */
+	private boolean detectOpenGLES20() {
+		ActivityManager am =
+			(ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+		ConfigurationInfo info = am.getDeviceConfigurationInfo();
+		Log.d("OpenGL Ver:", info.getGlEsVersion());
+		return (info.reqGlEsVersion >= 0x20000);
+	}
+	
     /* Inflates the options menu */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -65,7 +83,7 @@ public class ParticleToyActivity extends Activity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.clear:
-            	pEngine.clear();
+            	renderer.mPEngine.clear();
             	return true;
             case R.id.options:
             	if (optionsView.getVisibility() == View.VISIBLE) {
@@ -93,8 +111,8 @@ public class ParticleToyActivity extends Activity {
     @Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
-		if (pUI != null)
-			if (pUI.onTouchEvent(event))
+		if (renderer.mPEngine.mPUI != null)
+			if (renderer.mPEngine.mPUI.onTouchEvent(event))
 				return true;
 		return super.onTouchEvent(event);
 	}
@@ -102,8 +120,8 @@ public class ParticleToyActivity extends Activity {
 	@Override
 	public boolean onTrackballEvent(MotionEvent event)
 	{
-		if (pUI != null)
-			if (pUI.onTrackballEvent(event))
+		if (renderer.mPEngine.mPUI != null)
+			if (renderer.mPEngine.mPUI.onTrackballEvent(event))
 				return true;
 		return super.onTrackballEvent(event);
 	}
@@ -111,8 +129,8 @@ public class ParticleToyActivity extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event)
 	{
-		if (pUI != null)
-			if (pUI.onKeyDown(keyCode, event))
+		if (renderer.mPEngine.mPUI != null)
+			if (renderer.mPEngine.mPUI.onKeyDown(keyCode, event))
 				return true;
 		return super.onKeyDown(keyCode, event);
 	}
@@ -122,8 +140,8 @@ public class ParticleToyActivity extends Activity {
 	{
 		super.onPause();
 		mGLSurfaceView.onPause();
-		if (pUI != null)
-			pUI.onPause();
+		if (renderer.mPEngine.mPUI != null)
+			renderer.mPEngine.mPUI.onPause();
 	}
 
 	@Override
@@ -131,15 +149,13 @@ public class ParticleToyActivity extends Activity {
 	{
 		super.onResume();
 		mGLSurfaceView.onResume();
-		if (pUI != null)
-			pUI.onResume();
-	}
-
-	@Override
-	public void finish()
-	{
-		mGLSurfaceView.delete();
-		super.finish();
+		try {
+			renderer.mPEngine.mPUI.onResume();
+		}
+		catch (NullPointerException e) {
+			
+		}
+		
 	}
     
     /* Handles blink toggle */
