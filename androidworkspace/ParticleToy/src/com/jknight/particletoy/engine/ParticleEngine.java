@@ -15,7 +15,6 @@ import android.opengl.GLUtils;
 import android.util.Log;
 
 import com.android.angle.AngleObject;
-import com.jknight.particletoy.MyGLRenderer;
 import com.jknight.particletoy.R;
 
 public class ParticleEngine extends AngleObject {

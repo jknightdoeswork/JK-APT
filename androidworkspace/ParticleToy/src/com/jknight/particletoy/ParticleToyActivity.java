@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.jknight.particletoy.engine.MyGLRenderer;
 import com.jknight.particletoy.engine.ParticleEngine;
 import com.jknight.particletoy.engine.ParticleUI;
 

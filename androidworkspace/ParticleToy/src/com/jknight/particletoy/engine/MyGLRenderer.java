@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.jknight.particletoy;
+package com.jknight.particletoy.engine;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -22,8 +22,6 @@ import java.nio.FloatBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import com.jknight.particletoy.engine.FrameRateCounter;
-import com.jknight.particletoy.engine.ParticleEngine;
 
 import android.content.Context;
 import android.opengl.GLES20;

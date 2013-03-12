@@ -6,7 +6,6 @@ import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 import com.android.angle.AngleObject;
-import com.jknight.particletoy.MyGLRenderer;
 import com.jknight.particletoy.Utilities;
 
 import android.opengl.GLES20;
