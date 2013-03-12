@@ -7,11 +7,7 @@ import java.nio.ShortBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
-import android.opengl.GLUtils;
 import android.util.Log;
 
 import com.android.angle.AngleObject;
@@ -111,7 +107,7 @@ public class ParticleEngine extends AngleObject {
 		texCoordBuffer.position(0);
 		
         // load texture
-        textureDataHandle = loadTexture(this.renderer.context, R.drawable.stary_aura);
+        textureDataHandle = renderer.loadTexture(R.drawable.stary_aura);
         Log.i("TEX DATA HANDLE", " " + textureDataHandle);
 	}
 	
@@ -211,45 +207,5 @@ public class ParticleEngine extends AngleObject {
 	public void clear() {
 		removeAll();
 		_pFactory.freeAll();
-	}
-	
-	public static int loadTexture(final Context context, final int resourceId)
-	{
-	    final int[] textureHandle = new int[1];
-	 
-	    GLES20.glGenTextures(1, textureHandle, 0);
-	 
-	    if (textureHandle[0] != 0)
-	    {
-	        final BitmapFactory.Options options = new BitmapFactory.Options();
-	        options.inScaled = false;   // No pre-scaling
-	 
-	        // Read in the resource
-	        final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId, options);
-	        if (bitmap == null) {
-	        	throw new RuntimeException("Error decoding bitmap");
-	        }
-	        // Bind to the texture in OpenGL
-	        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
-	 
-	        // Set filtering
-	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
-	        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
-	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
-	        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
-	 
-	        // Load the bitmap into the bound texture.
-	        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
-	 
-	        // Recycle the bitmap, since its data has been loaded into OpenGL.
-	        bitmap.recycle();
-	    }
-	 
-	    if (textureHandle[0] == 0)
-	    {
-	        throw new RuntimeException("Error loading texture.");
-	    }
-	 
-	    return textureHandle[0];
 	}
 }
