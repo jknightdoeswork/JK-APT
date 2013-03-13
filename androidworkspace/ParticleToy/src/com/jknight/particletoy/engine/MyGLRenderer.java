@@ -42,6 +42,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public ParticleEngine mPEngine;
     public FrameRateCounter mFCounter; 
     public Context context;
+    public FluidEngine mFEngine;
     
     /** Misc Fields **/
     private float lastTime = 0.0f;
@@ -62,6 +63,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     	mFCounter = new FrameRateCounter(5);
     	mFCounter.loggingEnabled = false;
     	this.context = context;
+    	mFEngine = new FluidEngine();
     }
 
     @Override
@@ -86,6 +88,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         
         mPEngine.step(elapsed);
         mFCounter.step(elapsed);
+        mFEngine.update(elapsed);
+        mFEngine.draw();
         mPEngine.draw(mVMatrix, mProjMatrix);
     }
 
@@ -104,7 +108,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
          Matrix.orthoM(mProjMatrix, 0, -ratio, ratio, -1.0f, 1.0f, 0.0f, 10.0f);
          Log.i("Gl Info", "w: " + width + " h: " + height + " r: " + ratio);
          // Frustum can be used for 3d projections
-//          Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1.0f, 1.0f, 1.0f, 10.0f);
+         // Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1.0f, 1.0f, 1.0f, 10.0f);
     }
 
     public int loadTexture(final int resourceId)

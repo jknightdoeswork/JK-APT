@@ -1,214 +1,109 @@
 package com.jknight.particletoy.engine;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
+import android.opengl.GLES20;
+
 public class FluidEngine {
-    public final int N = 25;
-    final double N_INVERSE = 1 / N;
-    final int SIZE = (N + 2) * (N + 2);
-    double[] u = new double[SIZE];
-    double[] v = new double[SIZE];
-    double[] u_prev = new double[SIZE];
-    double[] v_prev = new double[SIZE];
-    double[] dense = new double[SIZE];
-    double[] dense_prev = new double[SIZE];
 
-    public double getDx(int x, int y) {
-        return u[INDEX(x + 1, y + 1)];
-    }
+	private NavierStokesSolver solver;
+	private TexturedQuad quad;
+	
+	//  Shader Handles
+	int mProgram;
+	int mMVPMatrixHandle;
+	int mPositionHandle;
+	int mTextureHandle;
+	int mTexCoordHandle;
+	int mTextureDataHandle;
+	
+    private final String vertexShaderCode =
+        // This matrix member variable provides a hook to manipulate
+        // the coordinates of the objects that use this vertex shader
+        "uniform mat4 uMVPMatrix;" +
+        "attribute vec4 vPosition;" +
+        "attribute vec2 texCoord;" +
+        "varying vec2 texCoordOut;" +
+        "void main() {" +
+        // the matrix must be included as a modifier of gl_Position
+        "  texCoordOut = texCoord; \n" +
+        "  gl_Position = uMVPMatrix * vPosition; \n" +
+        "}";
 
-    public double getDy(int x, int y) {
-        return v[INDEX(x + 1, y + 1)];
-    }
+    private final String fragmentShaderCode =
+        "precision mediump float;" +
+        "varying vec2 texCoordOut;" +
+        "uniform sampler2D u_texture;" +
+        "void main() {" +
+        " vec4 texColor = texture2D(u_texture, texCoordOut);\n" +
+        "  gl_FragColor = texColor;" +
+        "}";
 
-    public void applyForce(int cellX, int cellY, double vx, double vy) {
-        double dx = u[INDEX(cellX, cellY)];
-        double dy = v[INDEX(cellX, cellY)];
+    
+    
+	public FluidEngine() {
+		solver = new NavierStokesSolver(8);
+		quad = new TexturedQuad();
+	}
+	
+	public void update(float elapsed) {
+		solver.tick(elapsed, 1.0f, 1.0f);
+	}
+
+	public void draw() {
+		GLES20.glUseProgram(mProgram);
+        GLES20.glEnableVertexAttribArray(mPositionHandle);
+        GLES20.glEnableVertexAttribArray(mTexCoordHandle);
+        // Upload the vertices and tex coords
+        GLES20.glVertexAttribPointer(mPositionHandle, Quad.squareCoordsPerVertex,
+                                     GLES20.GL_FLOAT, false,
+                                     0, quad.vertexBuffer);
         
-        u[INDEX(cellX, cellY)] = (vx != 0) ? vx : dx;
-        v[INDEX(cellX, cellY)] = (vy != 0) ? vy : dy;
+        GLES20.glVertexAttribPointer(mTexCoordHandle, TexturedQuad.textureCoordsPerVertex,
+        							 GLES20.GL_FLOAT, false,
+        							 0, quad.texCoordBuffer);
+        
+        //         Upload the texture
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle);
+        MyGLRenderer.checkGlError("Texture bind");
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+        GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
 
-    }
-
-    public void tick(double dt, double visc, double diff) {
-        vel_step(u, v, u_prev, v_prev, visc, dt);
-        dens_step(dense, dense_prev, u, v, diff, dt);
-    }
-
-    /**
-     * All parameters and return values are in normalized form 0.0 - 1.0
-     *
-     * @param x
-     *          original horizontal position
-     * @param y
-     *          original vertical position
-     * @return warped position, inverse to the motion direction
-     */
-    public double[] getInverseWarpPosition(double x, double y, double scale) {
-        double[] result = new double[2];
-
-        int cellX = (int) Math.floor(x * N);
-        int cellY = (int) Math.floor(y * N);
-
-        double cellU = (x * N - (cellX)) * N_INVERSE;
-        double cellV = (y * N - (cellY)) * N_INVERSE;
-     
-        cellX += 1;
-        cellY += 2;
-
-        result[0] = (cellU > 0.5) ? lerp(u[INDEX(cellX, cellY)], u[INDEX(cellX + 1,
-                cellY)], cellU - 0.5) : lerp(u[INDEX(cellX - 1, cellY)], u[INDEX(cellX,
-                cellY)], 0.5 - cellU);
-        result[1] = (cellV > 0.5) ? lerp(v[INDEX(cellX, cellY)], v[INDEX(cellX,
-                cellY + 1)], cellU) : lerp(v[INDEX(cellX, cellY)], v[INDEX(cellX,
-                cellY - 1)], 0.5 - cellV);
-
-        result[0] *= -scale;
-        result[1] *= -scale;
-
-        result[0] += x;
-        result[1] += y;
-
-        return result;
-    }
-
-    public double lerp(double x0, double x1, double l) {
-        l *= 1;
-        return (1 - l) * x0 + l * x1;
-    }
-
-    public int INDEX(int i, int j) {
-        return i + (N + 2) * j;
-    }
-
-    public void SWAP(double[] x0, double[] x) {
-        double[] tmp = new double[SIZE];
-        System.arraycopy(x0, 0, tmp, 0, SIZE);
-        System.arraycopy(x, 0, x0, 0, SIZE);
-        System.arraycopy(tmp, 0, x, 0, SIZE);
-    }
-
-    void add_source(double[] x, double[] s, double dt) {
-        int i, size = (N + 2) * (N + 2);
-        for (i = 0; i < size; i++)
-            x[i] += dt * s[i];
-    }
-
-    void diffuse(int b, double[] x, double[] x0, double diff, double dt) {
-        int i, j, k;
-        double a = dt * diff * N * N;
-        for (k = 0; k < 20; k++) {
-            for (i = 1; i <= N; i++) {
-                for (j = 1; j <= N; j++) {
-                    x[INDEX(i, j)] = (x0[INDEX(i, j)] + a
-                            * (x[INDEX(i - 1, j)] + x[INDEX(i + 1, j)] + x[INDEX(i, j - 1)] + x[INDEX(
-                                    i, j + 1)]))
-                            / (1 + 4 * a);
-                }
-            }
-            set_bnd(b, x);
-        }
-    }
-
-    void advect(int b, double[] d, double[] d0, double[] u, double[] v, double dt) {
-        int i, j, i0, j0, i1, j1;
-        double x, y, s0, t0, s1, t1, dt0;
-        dt0 = dt * N;
-        for (i = 1; i <= N; i++) {
-            for (j = 1; j <= N; j++) {
-                x = i - dt0 * u[INDEX(i, j)];
-                y = j - dt0 * v[INDEX(i, j)];
-                if (x < 0.5)
-                    x = 0.5;
-                if (x > N + 0.5)
-                    x = N + 0.5;
-                i0 = (int) x;
-                i1 = i0 + 1;
-                if (y < 0.5)
-                    y = 0.5;
-                if (y > N + 0.5)
-                    y = N + 0.5;
-                j0 = (int) y;
-                j1 = j0 + 1;
-                s1 = x - i0;
-                s0 = 1 - s1;
-                t1 = y - j0;
-                t0 = 1 - t1;
-                d[INDEX(i, j)] = s0 * (t0 * d0[INDEX(i0, j0)] + t1 * d0[INDEX(i0, j1)])
-                        + s1 * (t0 * d0[INDEX(i1, j0)] + t1 * d0[INDEX(i1, j1)]);
-            }
-        }
-        set_bnd(b, d);
-    }
-
-    void set_bnd(int b, double[] x) {
-        int i;
-        for (i = 1; i <= N; i++) {
-            x[INDEX(0, i)] = (b == 1) ? -x[INDEX(1, i)] : x[INDEX(1, i)];
-            x[INDEX(N + 1, i)] = b == 1 ? -x[INDEX(N, i)] : x[INDEX(N, i)];
-            x[INDEX(i, 0)] = b == 2 ? -x[INDEX(i, 1)] : x[INDEX(i, 1)];
-            x[INDEX(i, N + 1)] = b == 2 ? -x[INDEX(i, N)] : x[INDEX(i, N)];
-        }
-        x[INDEX(0, 0)] = 0.5 * (x[INDEX(1, 0)] + x[INDEX(0, 1)]);
-        x[INDEX(0, N + 1)] = 0.5 * (x[INDEX(1, N + 1)] + x[INDEX(0, N)]);
-        x[INDEX(N + 1, 0)] = 0.5 * (x[INDEX(N, 0)] + x[INDEX(N + 1, 1)]);
-        x[INDEX(N + 1, N + 1)] = 0.5 * (x[INDEX(N, N + 1)] + x[INDEX(N + 1, N)]);
-    }
-
-    void dens_step(double[] x, double[] x0, double[] u, double[] v, double diff,
-            double dt) {
-        add_source(x, x0, dt);
-        SWAP(x0, x);
-        diffuse(0, x, x0, diff, dt);
-        SWAP(x0, x);
-        advect(0, x, x0, u, v, dt);
-    }
-
-    void vel_step(double[] u, double[] v, double[] u0, double[] v0, double visc,
-            double dt) {
-        add_source(u, u0, dt);
-        add_source(v, v0, dt);
-        SWAP(u0, u);
-        diffuse(1, u, u0, visc, dt);
-        SWAP(v0, v);
-        diffuse(2, v, v0, visc, dt);
-        project(u, v, u0, v0);
-        SWAP(u0, u);
-        SWAP(v0, v);
-        advect(1, u, u0, u0, v0, dt);
-        advect(2, v, v0, u0, v0, dt);
-        project(u, v, u0, v0);
-    }
-
-    void project(double[] u, double[] v, double[] p, double[] div) {
-        int i, j, k;
-        double h;
-        h = 1.0 / N;
-        for (i = 1; i <= N; i++) {
-            for (j = 1; j <= N; j++) {
-                div[INDEX(i, j)] = -0.5
-                        * h
-                        * (u[INDEX(i + 1, j)] - u[INDEX(i - 1, j)] + v[INDEX(i, j + 1)] - v[INDEX(
-                                i, j - 1)]);
-                p[INDEX(i, j)] = 0;
-            }
-        }
-        set_bnd(0, div);
-        set_bnd(0, p);
-        for (k = 0; k < 20; k++) {
-            for (i = 1; i <= N; i++) {
-                for (j = 1; j <= N; j++) {
-                    p[INDEX(i, j)] = (div[INDEX(i, j)] + p[INDEX(i - 1, j)]
-                            + p[INDEX(i + 1, j)] + p[INDEX(i, j - 1)] + p[INDEX(i, j + 1)]) / 4;
-                }
-            }
-            set_bnd(0, p);
-        }
-        for (i = 1; i <= N; i++) {
-            for (j = 1; j <= N; j++) {
-                u[INDEX(i, j)] -= 0.5 * (p[INDEX(i + 1, j)] - p[INDEX(i - 1, j)]) / h;
-                v[INDEX(i, j)] -= 0.5 * (p[INDEX(i, j + 1)] - p[INDEX(i, j - 1)]) / h;
-            }
-        }
-        set_bnd(1, u);
-        set_bnd(2, v);
-    }
+        // TODO MUST SPECIFY WIDTH/HEIGHT.
+        
+        ByteBuffer _denseBuffer = ByteBuffer.allocateDirect(solver.SIZE * 4);
+	    _denseBuffer.order(ByteOrder.nativeOrder());
+	    FloatBuffer denseBuffer = _denseBuffer.asFloatBuffer();
+		denseBuffer.put(solver.dense); // TODO DOES PUT COPY?
+		denseBuffer.position(0);
+		
+		// EXTENSION: GL_FLOAT NOT INNATELY SUPPORTED
+		// http://www.khronos.org/registry/gles/extensions/OES/OES_texture_float.txt
+        GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, GLES20.GL_ALPHA, solver.SIZE, 1, 0, GLES20.GL_ALPHA, GLES20.GL_FLOAT, denseBuffer);
+        MyGLRenderer.checkGlError("Texture bind");
+        // Set the uniform to the data in texture unit 0
+        GLES20.glUniform1i(mTextureHandle, 1);
+        MyGLRenderer.checkGlError("Texture bind");
+        GLES20.glDisableVertexAttribArray(mPositionHandle);
+        GLES20.glDisableVertexAttribArray(mTexCoordHandle);
+	}
+	
+	public void loadShader() {
+		mProgram = ShaderHelper.compileAndLinkShader(vertexShaderCode, fragmentShaderCode);
+		
+		mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+		
+		mTextureHandle = GLES20.glGetUniformLocation(mProgram, "u_texture");
+		
+		mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
+        
+        mTexCoordHandle = GLES20.glGetAttribLocation(mProgram, "texCoord");
+        
+        MyGLRenderer.checkGlError("Fluid Engine Load Shader");
+	}
 }

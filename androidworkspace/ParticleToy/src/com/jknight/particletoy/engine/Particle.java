@@ -63,7 +63,7 @@ public class Particle extends AngleObject{
         MyGLRenderer.checkGlError("glUniformMatrix4fv");
         
         // Draw the square
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6); 
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
 
 
     }

@@ -3,9 +3,6 @@ package com.jknight.particletoy.engine;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
-
-import javax.microedition.khronos.opengles.GL10;
 
 import android.opengl.GLES20;
 import android.util.Log;
@@ -75,7 +72,6 @@ public class ParticleEngine extends AngleObject {
     static int textureCoordsPerVertex = 2;
     
     private int textureDataHandle; // handle to the texture data we loaded onto GPU
-
     
 	public ParticleEngine(int maxChildren, MyGLRenderer pRenderer) {
 		super(maxChildren);
@@ -112,8 +108,9 @@ public class ParticleEngine extends AngleObject {
 	}
 	
 	public void draw(float[] mVMatrix, float[] mProjMatrix) {
-//		GLES20.glClearColor(1.0f,1.0f,1,0f);
-//		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+		GLES20.glUseProgram(mProgram);
+		// GLES20.glClearColor(1.0f,1.0f,1,0f);
+		// GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
     	// Enable a handle to the triangle vertices
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         // Prepare the triangle coordinate data
