@@ -11,15 +11,28 @@ public class ShaderHelper
 {
 	public static int compileAndLinkShader(String vertexShaderCode, String fragmentShaderCode) {
         int vertexShader = compile(vertexShaderCode, GLES20.GL_VERTEX_SHADER);
+        MyGLRenderer.checkGlError("Load Shader: Vertex Shader");
 		
-		int fragmentShader = MyGLRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER,
-		                  fragmentShaderCode);
+        int fragmentShader = compile(fragmentShaderCode, GLES20.GL_FRAGMENT_SHADER);
+		MyGLRenderer.checkGlError("Load Shader: Fragment Shader");
 		
 		int mProgram = GLES20.glCreateProgram();             // create empty OpenGL Program
-		GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program
-		GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
-		GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
+		GLES20.glAttachShader(mProgram, vertexShader);   	// add the vertex shader to program
+		GLES20.glAttachShader(mProgram, fragmentShader); 	// add the fragment shader to program
 		
+		String info = GLES20.glGetShaderInfoLog(fragmentShader);
+		
+		Log.i("Load Shader", "compile Info:\n"+info);
+		
+		GLES20.glLinkProgram(mProgram);                  // create OpenGL program executables
+		MyGLRenderer.checkGlError("Load Shader: Link Shader");
+		int[] linkError = new int[1];
+		linkError[0] = 8675309;
+		GLES20.glGetProgramiv(mProgram, GLES20.GL_LINK_STATUS, linkError, 0);
+		Log.i("Load Shader", "LINK STATUS: " + linkError[0]);
+		
+		GLES20.glUseProgram(mProgram);
+		MyGLRenderer.checkGlError("Load Shader: Use Shader");
 		return mProgram;
 	}
 	

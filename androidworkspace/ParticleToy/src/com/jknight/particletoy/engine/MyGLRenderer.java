@@ -63,12 +63,13 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     	mFCounter = new FrameRateCounter(5);
     	mFCounter.loggingEnabled = false;
     	this.context = context;
-    	mFEngine = new FluidEngine();
     }
 
     @Override
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
+    	mFEngine = new FluidEngine();
         mPEngine = new ParticleEngine(1000, this); // needs surface to exist
+        
         // Set the camera position (View matrix) will only happen once
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
@@ -88,8 +89,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         
         mPEngine.step(elapsed);
         mFCounter.step(elapsed);
-        mFEngine.update(elapsed);
-        mFEngine.draw();
+//        mFEngine.update(elapsed);
+//        mFEngine.draw();
         mPEngine.draw(mVMatrix, mProjMatrix);
     }
 
